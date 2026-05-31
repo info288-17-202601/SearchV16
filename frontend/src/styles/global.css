@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* ======== Nordic Clean Theme ======== */
+@plugin "daisyui/theme" {
+  name: "nordic";
+  default: true;
+  --color-primary: #059669;
+  --color-primary-content: #ffffff;
+  --color-secondary: #475569;
+  --color-secondary-content: #ffffff;
+  --color-accent: #d97706;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1c1917;
+  --color-neutral-content: #faf9f6;
+  --color-base-100: #faf9f6;
+  --color-base-200: #f3f2ec;
+  --color-base-300: #e5e3d8;
+  --color-base-content: #1c1917;
+  --color-info: #0ea5e9;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}
+
+/* ======== Design Tokens ======== */
+:root {
+  --card-bg: #ffffff;
+  --card-border: rgba(229, 227, 216, 0.8);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ======== Typography ======== */
+body {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
+}
+
+.font-display {
+  font-family: "Outfit", sans-serif !important;
+}
+
+/* ======== Reusable Components ======== */
+.result-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 1rem;
+  transition: all 0.25s ease;
+}
+
+.result-card:hover {
+  box-shadow: var(--card-shadow-hover);
+  border-color: #059669;
+  transform: translateY(-1px);
+}
+
+/* ======== Scrollbar ======== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e3d8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }

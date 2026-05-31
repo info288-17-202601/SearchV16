@@ -1,11 +1,477 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+  <div id="app" class="min-h-screen bg-base-100 text-base-content relative">
+
+    <!-- ========== LANDING ========== -->
+    <div id="landing" class="min-h-screen flex flex-col justify-center items-center px-4">
+      <div class="w-full max-w-xl text-center space-y-6 -mt-12">
+        <h1 class="text-6xl md:text-7xl font-extrabold font-display tracking-tight select-none">
+          Search <span class="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">V16</span>
+        </h1>
+        <p class="text-base-content/60 text-sm max-w-sm mx-auto">
+          Buscador distribuido de documentos corporativos
+        </p>
+
+        <form id="form-landing" class="relative mt-4">
+          <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/35" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            id="input-landing"
+            type="text"
+            placeholder="Buscar en documentos..."
+            autocomplete="off"
+            class="w-full pl-14 pr-28 py-4 bg-white border border-base-300 rounded-full shadow-sm focus:shadow-md focus:border-emerald-500 focus:outline-none transition-all text-base"
+          />
+          <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold font-display rounded-full transition-colors cursor-pointer active:scale-95">
+            Buscar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========== RESULTS ========== -->
+    <div id="results" class="hidden min-h-screen flex flex-col">
+
+      <!-- Navbar -->
+      <header class="sticky top-0 z-30 bg-base-100/95 backdrop-blur-md border-b border-base-300/70 px-4 md:px-8 py-3">
+        <div class="max-w-5xl mx-auto flex items-center gap-4">
+          <a href="/" id="logo-back" class="flex items-center gap-1.5 cursor-pointer shrink-0">
+            <span class="text-lg font-bold font-display tracking-tight">Search <span class="text-emerald-600">V16</span></span>
+          </a>
+          <form id="form-results" class="flex-1 max-w-lg">
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/35" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input
+                id="input-results"
+                type="text"
+                placeholder="Buscar..."
+                autocomplete="off"
+                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-transparent rounded-full focus:bg-white focus:border-emerald-500 focus:outline-none transition-all text-sm"
+              />
+            </div>
+          </form>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-6">
+
+        <!-- Result info -->
+        <div id="results-info" class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2">
+            <p id="results-summary" class="text-sm text-base-content/60"></p>
+            <span id="offline-badge" class="hidden text-[10px] bg-amber-100 text-amber-800 border border-amber-200 font-semibold px-2 py-0.5 rounded-full font-display">Offline Demo</span>
+          </div>
+          <span id="results-time" class="text-xs text-base-content/40 font-mono"></span>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden py-20 text-center">
+          <span class="loading loading-spinner loading-lg text-emerald-600"></span>
+          <p class="mt-4 text-sm text-base-content/50">Buscando documentos...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="hidden py-16 text-center">
+          <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base-content font-display">Error de conexión</h3>
+          <p id="error-msg" class="text-sm text-base-content/50 mt-1 max-w-sm mx-auto"></p>
+          <div class="flex justify-center gap-2 mt-4">
+            <button id="btn-retry" class="btn btn-sm btn-primary text-white rounded-full cursor-pointer">Reintentar</button>
+            <button id="btn-demo" class="btn btn-sm btn-outline rounded-full cursor-pointer">Usar datos simulados</button>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty" class="hidden py-16 text-center">
+          <div class="w-14 h-14 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-7 h-7 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base-content font-display">Sin resultados</h3>
+          <p class="text-sm text-base-content/50 mt-1">No se encontraron documentos para esta búsqueda.</p>
+        </div>
+
+        <!-- Results list -->
+        <div id="results-list" class="space-y-3"></div>
+
+      </main>
+    </div>
+
+  </div>
 </Layout>
+
+<script is:inline>
+  // ======== CONFIG ========
+  const API_BASE = 'http://localhost:8000';
+
+  // ======== MOCK DOCUMENTS (Offline Fallback) ========
+  const MOCK_DOCS = [
+    {
+      doc_id: "doc_1",
+      file_name: "Plan de Marketing Anual 2025 - Corporativo.pdf",
+      file_size_bytes: 2516582,
+      indexed_at: "2025-03-15T10:30:00Z",
+      download_url: "https://drive.google.com/open?id=mock_marketing_2025",
+      snippet: "Este documento detalla las estrategias de marketing de la empresa para el año fiscal 2025. El objetivo principal es la integración de nuestra marca con el nuevo motor de búsqueda Search V16.",
+      score: 1.450
+    },
+    {
+      doc_id: "doc_2",
+      file_name: "Reporte de Finanzas Q4 2024.xlsx",
+      file_size_bytes: 5033164,
+      indexed_at: "2024-11-20T16:45:00Z",
+      download_url: "https://drive.google.com/open?id=mock_finanzas_q4",
+      snippet: "Análisis presupuestario de fin de año 2024. Los ingresos consolidados superaron las proyecciones en un 12%. Contiene los balances completos de ingresos, egresos y proyecciones.",
+      score: 0.980
+    },
+    {
+      doc_id: "doc_3",
+      file_name: "Guía de Desarrollo e Integración API.txt",
+      file_size_bytes: 18432,
+      indexed_at: "2025-01-10T09:15:00Z",
+      download_url: "https://drive.google.com/open?id=mock_api_guide",
+      snippet: "Instrucciones de configuración del sistema de indexación. Para conectar correctamente el Drive corporativo con Search V16, asegúrese de generar la clave API en la consola de administración.",
+      score: 2.110
+    },
+    {
+      doc_id: "doc_4",
+      file_name: "Minuta de Reunión Tecnológica - Enero 2026.docx",
+      file_size_bytes: 1258291,
+      indexed_at: "2026-01-12T14:00:00Z",
+      download_url: "https://drive.google.com/open?id=mock_minuta_2026",
+      snippet: "Reunión de planificación del equipo de desarrollo de TI en 2026. Se discutió la migración de bases de datos relacionales Cassandra a Elasticsearch o SLR para indexar metadatos.",
+      score: 1.150
+    },
+    {
+      doc_id: "doc_5",
+      file_name: "Algoritmo de Indexación Semántica V16.pdf",
+      file_size_bytes: 3250585,
+      indexed_at: "2025-06-08T11:20:00Z",
+      download_url: "https://drive.google.com/open?id=mock_nlp_algorithm",
+      snippet: "Investigación académica sobre el procesamiento del lenguaje natural (NLP) y su aplicación en Search V16. Analiza el contexto semántico de cada documento en el Drive corporativo.",
+      score: 3.420
+    },
+    {
+      doc_id: "doc_6",
+      file_name: "Manual de Usuario y Despliegue.txt",
+      file_size_bytes: 46080,
+      indexed_at: "2024-08-05T08:00:00Z",
+      download_url: "https://drive.google.com/open?id=mock_user_manual",
+      snippet: "Guía de inicio rápido para el usuario final. Explica cómo realizar búsquedas textuales y cómo filtrar resultados por extensión de archivo (.pdf, .txt, .docx, .xlsx) y rango de fechas.",
+      score: 0.720
+    },
+    {
+      doc_id: "doc_7",
+      file_name: "Políticas de Ciberseguridad y Accesos.docx",
+      file_size_bytes: 1572864,
+      indexed_at: "2025-10-22T17:10:00Z",
+      download_url: "https://drive.google.com/open?id=mock_security_policies",
+      snippet: "Protocolos de seguridad para la gestión documental de la empresa. Este informe detalla las políticas de cifrado de archivos, control de accesos basados en roles (RBAC) y auditoría.",
+      score: 0.650
+    },
+    {
+      doc_id: "doc_8",
+      file_name: "Presupuesto de Infraestructura Tecnológica 2025.xlsx",
+      file_size_bytes: 1153433,
+      indexed_at: "2025-02-28T13:40:00Z",
+      download_url: "https://drive.google.com/open?id=mock_infra_budget",
+      snippet: "Detalle de los costos de hardware y servicios cloud estimulados para el año 2025. Incluye la compra de nuevos servidores para el almacenamiento de archivos indexados.",
+      score: 1.050
+    }
+  ];
+
+  // ======== DOM ========
+  const $ = id => document.getElementById(id);
+  const elLanding     = $('landing');
+  const elResults     = $('results');
+  const elFormLanding = $('form-landing');
+  const elFormResults = $('form-results');
+  const elInputLanding = $('input-landing');
+  const elInputResults = $('input-results');
+  const elResultsList = $('results-list');
+  const elLoading     = $('loading');
+  const elError       = $('error');
+  const elErrorMsg    = $('error-msg');
+  const elEmpty       = $('empty');
+  const elSummary     = $('results-summary');
+  const elOfflineBadge = $('offline-badge');
+  const elTime        = $('results-time');
+  const elLogoBack    = $('logo-back');
+  const elBtnRetry    = $('btn-retry');
+  const elBtnDemo     = $('btn-demo');
+
+  let lastQuery = '';
+  let forceDemoMode = false;
+  let isApiOnline = false;
+
+  // ======== FILE TYPE COLORS ========
+  const EXT_STYLE = {
+    txt:  { bg: 'bg-stone-100', text: 'text-stone-500', border: 'border-stone-200' },
+    pdf:  { bg: 'bg-red-50',    text: 'text-red-500',   border: 'border-red-100' },
+    docx: { bg: 'bg-blue-50',   text: 'text-blue-500',  border: 'border-blue-100' },
+    xlsx: { bg: 'bg-emerald-50',text: 'text-emerald-500',border: 'border-emerald-100' },
+  };
+
+  function getExt(filename) {
+    const ext = (filename || '').split('.').pop().toLowerCase();
+    return EXT_STYLE[ext] ? ext : 'txt';
+  }
+
+  // ======== HELPERS ========
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return '—';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  function formatDate(isoStr) {
+    if (!isoStr) return '';
+    const d = new Date(isoStr);
+    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+  }
+
+  // Escape regex symbols
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function highlightQuery(text, query) {
+    if (!query || !text) return escapeHtml(text || '');
+    const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+    return escapeHtml(text).replace(regex, '<mark class="bg-emerald-100 text-emerald-700 px-0.5 rounded">$1</mark>');
+  }
+
+  // ======== VIEWS ========
+  function showLanding() {
+    elResults.classList.add('hidden');
+    elLanding.classList.remove('hidden');
+    elInputLanding.value = '';
+    elInputResults.value = '';
+    window.history.pushState({}, '', '/');
+  }
+
+  // Sync state between landing and results inputs
+  function showResults(query) {
+    elLanding.classList.add('hidden');
+    elResults.classList.remove('hidden');
+    elInputLanding.value = query;
+    elInputResults.value = query;
+    window.history.pushState({}, '', `/?q=${encodeURIComponent(query)}`);
+  }
+
+  function showState(state) {
+    elLoading.classList.toggle('hidden', state !== 'loading');
+    elError.classList.toggle('hidden', state !== 'error');
+    elEmpty.classList.toggle('hidden', state !== 'empty');
+    elResultsList.classList.toggle('hidden', state !== 'results');
+    if (state !== 'results' && state !== 'loading') {
+      elSummary.textContent = '';
+      elTime.textContent = '';
+      elOfflineBadge.classList.add('hidden');
+    }
+  }
+
+  // ======== API ========
+  async function search(query) {
+    lastQuery = query;
+    showResults(query);
+    showState('loading');
+
+    if (forceDemoMode) {
+      isApiOnline = false;
+      performOfflineSearch(query);
+      return;
+    }
+
+    const startTime = performance.now();
+
+    try {
+      const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+
+      const results = data.results || data.documents || data || [];
+
+      if (results.length === 0) {
+        showState('empty');
+        elSummary.textContent = `Sin resultados para "${query}"`;
+        elOfflineBadge.classList.add('hidden');
+        return;
+      }
+
+      isApiOnline = true;
+      renderResults(results, query);
+      elSummary.textContent = `${results.length} resultado${results.length !== 1 ? 's' : ''} para "${query}"`;
+      elTime.textContent = `${elapsed}s`;
+      if (data.cached) {
+        elTime.textContent += ' · caché';
+      }
+      elOfflineBadge.classList.add('hidden');
+      showState('results');
+
+    } catch (err) {
+      console.warn('API connection failed. Prompting for offline mode...', err);
+      isApiOnline = false;
+      performOfflineSearch(query);
+    }
+  }
+
+  function performOfflineSearch(query) {
+    const startTime = performance.now();
+    
+    // Simple client-side text filtering to simulate backend search
+    const results = MOCK_DOCS.filter(doc => {
+      const q = query.toLowerCase();
+      return doc.file_name.toLowerCase().includes(q) || doc.snippet.toLowerCase().includes(q);
+    });
+
+    setTimeout(() => {
+      const elapsed = ((performance.now() - startTime) / 1000).toFixed(3);
+      
+      if (results.length === 0) {
+        showState('empty');
+        elSummary.textContent = `Sin resultados para "${query}"`;
+        elOfflineBadge.classList.remove('hidden');
+        return;
+      }
+
+      renderResults(results, query);
+      elSummary.textContent = `${results.length} resultado${results.length !== 1 ? 's' : ''} para "${query}"`;
+      elTime.textContent = `${elapsed}s`;
+      elOfflineBadge.classList.remove('hidden');
+      showState('results');
+    }, 150); // slight simulated delay
+  }
+
+  // ======== RENDER ========
+  function renderResults(results, query) {
+    elResultsList.innerHTML = '';
+
+    results.forEach(doc => {
+      const name = doc.file_name || doc.filename || doc.title || 'Documento';
+      const ext = getExt(name);
+      const extLabel = ext.toUpperCase();
+      const style = EXT_STYLE[ext];
+      const size = formatBytes(doc.file_size_bytes || doc.size);
+      const date = formatDate(doc.indexed_at || doc.date);
+      const score = doc.score != null ? doc.score.toFixed(3) : null;
+      const snippet = doc.snippet || doc.content || '';
+      const docId = doc.doc_id || doc.id || '';
+
+      // Secure API redirection to your download route
+      const downloadUrl = (forceDemoMode || !isApiOnline)
+        ? (doc.download_url || '#')
+        : `${API_BASE}/download/${encodeURIComponent(docId)}`;
+
+      const card = document.createElement('a');
+      card.href = downloadUrl;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+      card.className = 'result-card p-4 flex items-start gap-4 group block cursor-pointer';
+
+      card.innerHTML = `
+        <div class="w-10 h-10 rounded-lg ${style.bg} ${style.text} ${style.border} border flex items-center justify-center font-bold text-[10px] font-display shrink-0 mt-0.5">
+          ${extLabel}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-semibold text-base-content group-hover:text-emerald-600 transition-colors text-sm leading-snug font-display truncate">
+            ${highlightQuery(name, query)}
+          </h3>
+          <div class="flex items-center gap-2 mt-1 text-xs text-base-content/45">
+            <span>${size}</span>
+            ${date ? `<span class="w-1 h-1 rounded-full bg-base-content/20"></span><span>${date}</span>` : ''}
+            ${score !== null ? `<span class="w-1 h-1 rounded-full bg-base-content/20"></span><span class="font-mono">score: ${score}</span>` : ''}
+          </div>
+          ${snippet ? `<p class="text-xs text-base-content/55 mt-2 leading-relaxed line-clamp-2">${highlightQuery(snippet.substring(0, 200), query)}</p>` : ''}
+        </div>
+        <svg class="w-4 h-4 text-base-content/20 group-hover:text-emerald-500 transition-colors shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      `;
+
+      elResultsList.appendChild(card);
+    });
+  }
+
+  // ======== EVENT LISTENERS ========
+  elFormLanding.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = elInputLanding.value.trim();
+    if (q) search(q);
+  });
+
+  elFormResults.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = elInputResults.value.trim();
+    if (q) search(q);
+  });
+
+  elLogoBack.addEventListener('click', e => {
+    e.preventDefault();
+    showLanding();
+  });
+
+  elBtnRetry.addEventListener('click', () => {
+    forceDemoMode = false;
+    if (lastQuery) search(lastQuery);
+  });
+
+  elBtnDemo.addEventListener('click', () => {
+    forceDemoMode = true;
+    if (lastQuery) search(lastQuery);
+  });
+
+  window.addEventListener('popstate', () => {
+    const q = new URLSearchParams(window.location.search).get('q');
+    if (q) {
+      search(q);
+    } else {
+      showLanding();
+    }
+  });
+
+  // ======== INIT ========
+  window.addEventListener('DOMContentLoaded', () => {
+    const q = new URLSearchParams(window.location.search).get('q');
+    if (q) search(q);
+  });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #landing { animation: fadeIn 0.4s ease forwards; }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
