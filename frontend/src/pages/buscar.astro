@@ -1,0 +1,120 @@
+---
+// frontend/src/pages/buscar.astro
+// Ejemplo: Página de búsqueda usando SearchComponent
+
+import SearchComponent from '../components/SearchComponent.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Buscar | SearchV16">
+  <main>
+    <div class="container">
+      <h1>🔍 Buscador SearchV16</h1>
+      <p class="subtitle">
+        Motor de búsqueda distribuido de alto rendimiento
+      </p>
+      
+      <SearchComponent 
+        placeholder="Escribe tu búsqueda aquí..."
+        maxResults={30}
+        minChars={2}
+      />
+
+      <div class="info-box">
+        <h3>💡 Consejos de búsqueda:</h3>
+        <ul>
+          <li><strong>"distributed systems"</strong> - Frase exacta</li>
+          <li><strong>consensus algorithm</strong> - Términos separados</li>
+          <li><strong>blockchain</strong> - Palabra individual</li>
+          <li>Soporta búsqueda aproximada (fuzzy matching)</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .container {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #0066cc;
+    font-size: 2.5em;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 40px;
+    font-size: 1.1em;
+  }
+
+  .info-box {
+    margin-top: 50px;
+    background: linear-gradient(135deg, #f5f7ff 0%, #fff9e6 100%);
+    border-left: 4px solid #0066cc;
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .info-box h3 {
+    margin-top: 0;
+    color: #0066cc;
+  }
+
+  .info-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+
+  .info-box li {
+    padding: 8px 0;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .info-box strong {
+    color: #0066cc;
+    font-family: monospace;
+  }
+
+  @media (max-width: 640px) {
+    main {
+      padding: 20px 15px;
+    }
+
+    h1 {
+      font-size: 1.8em;
+    }
+
+    .subtitle {
+      font-size: 1em;
+      margin-bottom: 30px;
+    }
+
+    .info-box {
+      margin-top: 30px;
+    }
+  }
+</style>

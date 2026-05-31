@@ -1,46 +1,94 @@
-# Astro Starter Kit: Basics
+﻿# SearchV16 Frontend - Astro
 
-```sh
-npm create astro@latest -- --template basics
-```
+Interfaz web moderna para SearchV16, construida con Astro y TypeScript.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Requisitos
 
-## 🚀 Project Structure
+- Node.js 18+ 
+- npm o yarn
+- Backend FastAPI ejecutándose en \http://localhost:8000\
 
-Inside of your Astro project, you'll see the following folders and files:
+## Instalación
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+\\\ash
+npm install
+\\\
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Desarrollo
 
-## 🧞 Commands
+\\\ash
+npm run dev
+\\\
 
-All commands are run from the root of the project, from a terminal:
+El servidor de desarrollo estará disponible en \http://localhost:3000\ o \http://localhost:4321\
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Quick Start
 
-## 👀 Want to learn more?
+1. **Inicia Elasticsearch:**
+   \\\ash
+   docker start elasticsearch
+   \\\
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+2. **Inicia el backend FastAPI:**
+   \\\ash
+   cd ../backend
+   python main.py
+   \\\
+
+3. **Inicia el frontend:**
+   \\\ash
+   npm install
+   npm run dev
+   \\\
+
+## Estructura del Proyecto
+
+\\\
+src/
+├── components/
+│   ├── SearchComponent.astro      # Componente de búsqueda reutilizable
+│   └── ...otros componentes
+│
+├── lib/
+│   └── searchClient.ts            # Cliente para API FastAPI
+│
+├── layouts/
+│   └── Layout.astro               # Layout base
+│
+├── pages/
+│   ├── index.astro                # Página principal
+│   └── ...otras páginas
+│
+└── styles/
+    └── ...archivos de estilo
+\\\
+
+## Uso del Componente SearchComponent
+
+\\\stro
+---
+import SearchComponent from '../components/SearchComponent.astro';
+---
+
+<main>
+  <SearchComponent 
+    placeholder="Buscar documentos..." 
+    maxResults={20} 
+    minChars={2}
+  />
+</main>
+\\\
+
+## Troubleshooting
+
+### "Failed to fetch from API"
+- Verifica que el backend esté corriendo en \http://localhost:8000\
+- Revisa la consola del navegador (F12) para CORS errors
+
+### Resultados vacíos
+- Verifica que Elasticsearch esté corriendo
+- Comprueba que el índice "library" exista con datos
+
+## Más información
+
+Revisa \../backend/README.md\ para documentación de la API completa.

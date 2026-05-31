@@ -1,0 +1,385 @@
+---
+// SearchComponent.astro
+// Componente reutilizable de búsqueda para SearchV16
+
+import SearchClient from '../lib/searchClient';
+
+interface Props {
+  placeholder?: string;
+  maxResults?: number;
+  minChars?: number;
+}
+
+const { 
+  placeholder = 'Buscar documentos...',
+  maxResults = 20,
+  minChars = 2
+} = Astro.props;
+---
+
+<div class="search-component">
+  <div class="search-box">
+    <input 
+      type="text" 
+      placeholder={placeholder}
+      class="search-input"
+      id="searchInput"
+      data-min-chars={minChars}
+      data-max-results={maxResults}
+    />
+    <button class="search-button" id="searchBtn" aria-label="Buscar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="results-container" id="resultsContainer" hidden>
+    <div class="results-header">
+      <span class="result-count" id="resultCount"></span>
+      <span class="result-time" id="resultTime"></span>
+    </div>
+    
+    <div class="results-list" id="resultsList"></div>
+  </div>
+
+  <div class="loading" id="loading" hidden>
+    <div class="spinner"></div>
+    <span>Buscando...</span>
+  </div>
+
+  <div class="error-message" id="errorMessage" hidden></div>
+</div>
+
+<script define:vars={{ maxResults, minChars }}>
+  import SearchClient from '../lib/searchClient';
+
+  const client = new SearchClient('http://localhost:8000');
+  
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const resultsList = document.getElementById('resultsList');
+  const resultCount = document.getElementById('resultCount');
+  const resultTime = document.getElementById('resultTime');
+  const loading = document.getElementById('loading');
+  const errorMessage = document.getElementById('errorMessage');
+
+  let searchTimeout;
+
+  async function performSearch() {
+    const query = searchInput.value.trim();
+
+    if (query.length < minChars) {
+      resultsContainer.hidden = true;
+      errorMessage.hidden = true;
+      return;
+    }
+
+    loading.hidden = false;
+    resultsContainer.hidden = true;
+    errorMessage.hidden = true;
+
+    try {
+      const response = await client.search(query, maxResults);
+      
+      displayResults(response.results, response.total, response.took_ms);
+      resultCount.textContent = `${response.count} de ${response.total} resultados`;
+      resultTime.textContent = `(${response.took_ms}ms)`;
+      
+      resultsContainer.hidden = false;
+    } catch (error) {
+      showError('Error al buscar. Por favor, intenta de nuevo.');
+      console.error(error);
+    } finally {
+      loading.hidden = true;
+    }
+  }
+
+  function displayResults(results, total, timeMs) {
+    resultsList.innerHTML = '';
+
+    if (results.length === 0) {
+      resultsList.innerHTML = '<p class="no-results">No se encontraron resultados</p>';
+      return;
+    }
+
+    results.forEach((result) => {
+      const resultEl = document.createElement('div');
+      resultEl.className = 'result-item';
+
+      let highlightHtml = '';
+      if (result.highlight?.content) {
+        highlightHtml = `
+          <div class="highlight">
+            <strong>Coincidencias:</strong>
+            <p>${result.highlight.content[0]}</p>
+          </div>
+        `;
+      }
+
+      resultEl.innerHTML = `
+        <h3 class="result-title">${escapeHtml(result.title)}</h3>
+        <p class="result-excerpt">${escapeHtml(result.content.substring(0, 150))}...</p>
+        ${highlightHtml}
+        <div class="result-metadata">
+          <small class="result-score">Score: ${result.score.toFixed(2)}</small>
+          ${result.source.author ? `<small class="result-author">Autor: ${escapeHtml(result.source.author)}</small>` : ''}
+          ${result.source.year ? `<small class="result-year">Año: ${result.source.year}</small>` : ''}
+        </div>
+      `;
+
+      resultsList.appendChild(resultEl);
+    });
+  }
+
+  function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.hidden = false;
+    resultsContainer.hidden = true;
+  }
+
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Event listeners
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(performSearch, 300);
+  });
+
+  searchBtn.addEventListener('click', performSearch);
+
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      clearTimeout(searchTimeout);
+      performSearch();
+    }
+  });
+</script>
+
+<style>
+  .search-component {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+
+  .search-button {
+    padding: 12px 16px;
+    background: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-button:hover {
+    background: #0052a3;
+  }
+
+  .search-button:active {
+    background: #003d7a;
+  }
+
+  .results-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    overflow: hidden;
+  }
+
+  .results-header {
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .result-count {
+    font-weight: 500;
+  }
+
+  .result-time {
+    color: #999;
+  }
+
+  .results-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .result-item {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+  }
+
+  .result-item:last-child {
+    border-bottom: none;
+  }
+
+  .result-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .result-title {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #0066cc;
+    font-weight: 600;
+  }
+
+  .result-title:hover {
+    text-decoration: underline;
+  }
+
+  .result-excerpt {
+    margin: 8px 0;
+    color: #666;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+
+  .highlight {
+    background: #fffacd;
+    border-left: 4px solid #ff9800;
+    padding: 10px 12px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .highlight strong {
+    display: block;
+    color: #ff9800;
+    margin-bottom: 4px;
+  }
+
+  .highlight p {
+    margin: 0;
+    color: #333;
+  }
+
+  :global(.highlight mark) {
+    background: #ffeb3b;
+    padding: 2px 4px;
+    font-weight: 600;
+  }
+
+  .result-metadata {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .result-metadata small {
+    color: #999;
+    font-size: 12px;
+  }
+
+  .result-score {
+    color: #0066cc;
+    font-weight: 500;
+  }
+
+  .no-results {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 16px;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    color: #666;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f0f0f0;
+    border-top-color: #0066cc;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .error-message {
+    padding: 12px 16px;
+    background: #ffebee;
+    color: #d32f2f;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .search-box {
+      flex-direction: column;
+    }
+
+    .search-button {
+      width: 100%;
+    }
+
+    .results-list {
+      max-height: 400px;
+    }
+
+    .result-metadata {
+      gap: 8px;
+    }
+  }
+</style>
