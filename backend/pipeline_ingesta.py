@@ -311,7 +311,12 @@ def construir_cliente_es(host: str) -> Elasticsearch:
     Raises:
         ESConnectionError: Si no se puede establecer conexión.
     """
-    cliente = Elasticsearch([host])
+    cliente = Elasticsearch(
+        [host],
+        request_timeout=60,      # ← sube de 10s (default) a 60s
+        retry_on_timeout=True,   # ← reintenta automáticamente si hay timeout
+        max_retries=3,
+    )
     if not cliente.ping():
         raise ESConnectionError(f"No se pudo conectar a Elasticsearch en: {host}")
     log.info("Conexión a Elasticsearch establecida en %s", host)
@@ -546,65 +551,65 @@ def procesar_directorio(
 
         # 6. Construir documento JSON
         documentos_pendientes.append({
-            "file_name"        : archivo.name,
+            "title"        : archivo.name,
             "file_extension"   : ext,
             "file_hash"        : file_hash,
             "google_drive_link": enlace_drive,
-            "extracted_text"   : texto,
+            "content"   : texto,
             "upload_date"      : datetime.now(tz=timezone.utc).isoformat(),
         })
 
         # Marcar hash como procesado inmediatamente para deduplicar
         # dentro de la misma ejecución
-        # hashes_procesados.add(file_hash)
+        hashes_procesados.add(file_hash)
 
         total_lotes = -(-len(documentos_pendientes) // TAMAÑO_LOTE) or 0  # ceil
 
     log.info("=" * 60)
-    log.info("FASE 2: %d documentos → %d lote(s) de máx %d",
-             len(documentos_pendientes), total_lotes, TAMAÑO_LOTE)
-    log.info("=" * 60)
 
-    for i in range(0, len(documentos_pendientes), TAMAÑO_LOTE):
-        lote = documentos_pendientes[i : i + TAMAÑO_LOTE]
-        numero_lote = (i // TAMAÑO_LOTE) + 1
+    if not documentos_pendientes:
+        log.info("No hay documentos nuevos para indexar.")
+    else:
+        for i in range(0, len(documentos_pendientes), TAMAÑO_LOTE):
+            lote = documentos_pendientes[i : i + TAMAÑO_LOTE]
+            numero_lote = (i // TAMAÑO_LOTE) + 1
 
-        log.info("   Lote %d/%d — %d documentos...", numero_lote, total_lotes, len(lote))
+            log.info("   Lote %d/%d — %d documentos...", numero_lote, total_lotes, len(lote))
 
-        # ── Guardado local en .txt (temporal hasta conectar ES) ───────────────
-        if ELASTICSEARCH_ACTIVO:
-            operaciones = [
-                {"_index": es_index, "_id": doc["file_hash"], "_source": doc}
-                for doc in lote
-            ]
-            try:
-                exitos, fallos = bulk(cliente_es, operaciones, raise_on_error=False)
-                procesados += exitos
-                errores += len(fallos)
-                for fallo in fallos:
-                    log.error("   Fallo ES: %s", fallo)
-                log.info("   ✓ Lote %d/%d — %d indexados, %d fallos.",
-                         numero_lote, total_lotes, exitos, len(fallos))
-            except Exception as exc:
-                log.error("   Error en lote %d: %s", numero_lote, exc)
-                errores += len(lote)
-        else:
-            errores_lote = 0
-            for doc in lote:
-                ruta_salida = SALIDA_JSON_DIR / f"{Path(doc['file_name']).stem}_{doc['file_hash'][:8]}.txt"
+            # ── Guardado local en .txt (temporal hasta conectar ES) ───────────────
+            if ELASTICSEARCH_ACTIVO:
+                operaciones = [
+                    {"_index": es_index, "_id": doc["file_hash"], "_source": doc}
+                    for doc in lote
+                ]
                 try:
-                    ruta_salida.write_text(
-                        json.dumps(doc, ensure_ascii=False, indent=2),
-                        encoding="utf-8",
-                    )
-                    procesados += 1
-                except OSError as exc:
-                    log.error("   Error guardando '%s': %s", doc["file_name"], exc)
-                    errores_lote += 1
-                    errores += 1
+                    exitos, fallos = bulk(cliente_es, operaciones, raise_on_error=False)
+                    procesados += exitos
+                    errores += len(fallos)
+                    for fallo in fallos:
+                        log.error("   Fallo ES: %s", fallo)
+                    log.info("   ✓ Lote %d/%d — %d indexados, %d fallos.",
+                            numero_lote, total_lotes, exitos, len(fallos))
+                except Exception as exc:
+                    log.error("   Error en lote %d: %s", numero_lote, exc)
+                    errores += len(lote)
+            else:
+                errores_lote = 0
+                for doc in lote:
+                    ruta_salida = SALIDA_JSON_DIR / f"{Path(doc['file_name']).stem}_{doc['file_hash'][:8]}.txt"
+                    try:
+                        ruta_salida.write_text(
+                            json.dumps(doc, ensure_ascii=False, indent=2),
+                            encoding="utf-8",
+                        )
+                        procesados += 1
+                    except OSError as exc:
+                        log.error("   Error guardando '%s': %s", doc["file_name"], exc)
+                        errores_lote += 1
+                        errores += 1
 
-            log.info("   ✓ Lote %d/%d completado — %d ok, %d errores.",
-                    numero_lote, total_lotes, len(lote) - errores_lote, errores_lote)
+                log.info("   ✓ Lote %d/%d completado — %d ok, %d errores.",
+                        numero_lote, total_lotes, len(lote) - errores_lote, errores_lote)
 
 
 

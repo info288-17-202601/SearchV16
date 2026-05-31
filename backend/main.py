@@ -226,7 +226,7 @@ async def search_advanced(
             filters=filters if filters else None,
             fields=fields,
             size=size,
-            highlight=True
+            highlight=True,
         )
         
         results = []

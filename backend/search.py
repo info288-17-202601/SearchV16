@@ -79,12 +79,20 @@ class ElasticsearchSearch:
             "_source": True  # Retornar documento completo
         }
         
-        # Agregar highlight si se solicita
         if highlight:
             search_params["highlight"] = {
-                "fields": {field: {} for field in fields},
                 "pre_tags": ["<mark>"],
-                "post_tags": ["</mark>"]
+                "post_tags": ["</mark>"],
+
+                "fields": {
+                    "title": {},
+
+                    "content": {
+                        "fragment_size": 250,
+                        "number_of_fragments": 2,
+                        "max_analyzed_offset": 500000
+                    }
+                }
             }
         
         try:
@@ -151,9 +159,18 @@ class ElasticsearchSearch:
         
         if highlight:
             search_params["highlight"] = {
-                "fields": {field: {} for field in fields},
                 "pre_tags": ["<mark>"],
-                "post_tags": ["</mark>"]
+                "post_tags": ["</mark>"],
+
+                "fields": {
+                    "title": {},
+
+                    "content": {
+                        "fragment_size": 250,
+                        "number_of_fragments": 2,
+                        "max_analyzed_offset": 500000
+                    }
+                }
             }
         
         try:
