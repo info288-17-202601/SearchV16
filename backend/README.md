@@ -113,6 +113,40 @@ GET /search?query=distributed+systems&size=10&highlight=true
 GET /search/advanced?query=consensus&author=Tanenbaum&size=15
 ```
 
+### 6. Obtener Detalles del Documento
+```
+GET /document/{document_id}
+```
+Obtiene los detalles completos de un documento, incluyendo el enlace de descarga de Google Drive.
+
+**Respuesta:**
+```json
+{
+  "id": "abc123...",
+  "title": "Distributed Systems: Principles and Paradigms",
+  "content": "...",
+  "google_drive_link": "https://drive.google.com/file/d/...",
+  "file_extension": ".pdf",
+  "upload_date": "2026-01-15T10:30:00+00:00",
+  "source": {...}
+}
+```
+
+### 7. Obtener Enlace de Descarga
+```
+GET /download/{document_id}
+```
+Retorna el enlace de descarga directo de Google Drive para un documento.
+
+**Respuesta:**
+```json
+{
+  "download_url": "https://drive.google.com/file/d/...",
+  "title": "Distributed Systems: Principles and Paradigms",
+  "file_extension": ".pdf"
+}
+```
+
 ## Ejemplos de uso
 
 ### Con curl
@@ -195,6 +229,7 @@ console.log(results);
       "title": "Distributed Systems: Principles and Paradigms",
       "content": "A comprehensive guide to distributed systems...",
       "score": 9.5,
+      "google_drive_link": "https://drive.google.com/file/d/...",
       "highlight": {
         "content": [
           "A guide to <mark>distributed systems</mark>..."
@@ -204,7 +239,8 @@ console.log(results);
         "title": "Distributed Systems: Principles and Paradigms",
         "author": "Tanenbaum",
         "year": 2017,
-        "content": "Full document content..."
+        "content": "Full document content...",
+        "google_drive_link": "https://drive.google.com/file/d/..."
       }
     }
   ]
@@ -216,7 +252,7 @@ console.log(results);
 - `main.py` - Aplicación FastAPI principal
 - `models.py` - Modelos Pydantic para validación
 - `search.py` - Lógica de búsqueda Elasticsearch
-- `busqueda.py` - Scrips de búsqueda original (legacy)
+- `pipeline_ingesta.py` - Pipeline de ingesta de documentos desde Google Drive
 - `requirements.txt` - Dependencias Python
 
 ## Configuración

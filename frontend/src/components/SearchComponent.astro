@@ -119,6 +119,22 @@ const {
         `;
       }
 
+      let downloadBtn = '';
+      if (result.google_drive_link) {
+        downloadBtn = `
+          <div class="result-actions">
+            <a href="${result.google_drive_link}" target="_blank" rel="noopener noreferrer" class="download-btn" title="Descargar en Google Drive">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Descargar
+            </a>
+          </div>
+        `;
+      }
+
       resultEl.innerHTML = `
         <h3 class="result-title">${escapeHtml(result.title)}</h3>
         <p class="result-excerpt">${escapeHtml(result.content.substring(0, 150))}...</p>
@@ -128,6 +144,7 @@ const {
           ${result.source.author ? `<small class="result-author">Autor: ${escapeHtml(result.source.author)}</small>` : ''}
           ${result.source.year ? `<small class="result-year">Año: ${result.source.year}</small>` : ''}
         </div>
+        ${downloadBtn}
       `;
 
       resultsList.appendChild(resultEl);
@@ -323,6 +340,38 @@ const {
   .result-score {
     color: #0066cc;
     font-weight: 500;
+  }
+
+  .result-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .download-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+  }
+
+  .download-btn:active {
+    transform: translateY(0);
   }
 
   .no-results {

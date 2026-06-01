@@ -131,6 +131,7 @@ async def search(request: SearchRequest) -> SearchResponse:
                 content=hit["_source"].get("content", ""),
                 score=hit["_score"],
                 highlight=hit.get("highlight", None),
+                google_drive_link=hit["_source"].get("google_drive_link"),
                 source=hit["_source"]
             )
             results.append(result)
@@ -237,6 +238,7 @@ async def search_advanced(
                 content=hit["_source"].get("content", ""),
                 score=hit["_score"],
                 highlight=hit.get("highlight", None),
+                google_drive_link=hit["_source"].get("google_drive_link"),
                 source=hit["_source"]
             )
             results.append(result)
@@ -254,6 +256,86 @@ async def search_advanced(
         raise HTTPException(
             status_code=500,
             detail=f"Error: {str(e)}"
+        )
+
+
+@app.get("/document/{document_id}", tags=["Documents"])
+async def get_document(document_id: str) -> dict:
+    """
+    Obtiene los detalles de un documento específico, incluyendo el enlace de descarga
+    
+    **Parámetros:**
+    - **document_id**: ID del documento (file_hash)
+    
+    **Ejemplo:**
+    `GET /document/abc123def456`
+    """
+    if not es_client or not es_client.is_connected():
+        raise HTTPException(
+            status_code=503,
+            detail="Elasticsearch no está disponible"
+        )
+    
+    try:
+        # Obtener documento por su ID (file_hash)
+        response = es_client.es.get(index="library", id=document_id)
+        source = response["_source"]
+        
+        return {
+            "id": document_id,
+            "title": source.get("title", "Sin título"),
+            "content": source.get("content", ""),
+            "google_drive_link": source.get("google_drive_link"),
+            "file_extension": source.get("file_extension"),
+            "upload_date": source.get("upload_date"),
+            "source": source
+        }
+    except Exception as e:
+        logger.error(f"Error al obtener documento: {str(e)}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Documento no encontrado: {document_id}"
+        )
+
+
+@app.get("/download/{document_id}", tags=["Documents"])
+async def download_document(document_id: str):
+    """
+    Obtiene el enlace de descarga de un documento desde Google Drive
+    
+    **Parámetros:**
+    - **document_id**: ID del documento (file_hash)
+    
+    **Ejemplo:**
+    `GET /download/abc123def456`
+    """
+    if not es_client or not es_client.is_connected():
+        raise HTTPException(
+            status_code=503,
+            detail="Elasticsearch no está disponible"
+        )
+    
+    try:
+        response = es_client.es.get(index="library", id=document_id)
+        source = response["_source"]
+        google_drive_link = source.get("google_drive_link")
+        
+        if not google_drive_link:
+            raise HTTPException(
+                status_code=404,
+                detail="Este documento no tiene enlace de descarga disponible"
+            )
+        
+        return {
+            "download_url": google_drive_link,
+            "title": source.get("title"),
+            "file_extension": source.get("file_extension")
+        }
+    except Exception as e:
+        logger.error(f"Error al obtener enlace de descarga: {str(e)}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Documento no encontrado: {document_id}"
         )
 
 

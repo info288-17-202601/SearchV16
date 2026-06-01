@@ -23,6 +23,7 @@ class SearchResult(BaseModel):
     content: str
     score: float
     highlight: Optional[dict] = None
+    google_drive_link: Optional[str] = Field(None, description="Enlace de descarga en Google Drive")
     source: dict = Field(..., description="Documento original de Elasticsearch")
 
 
