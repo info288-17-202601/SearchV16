@@ -206,32 +206,6 @@ Edita `backend/.env` para cambiar:
 - `API_PORT` - Puerto del servidor
 - `CORS_ORIGINS` - Orígenes permitidos
 
----
-
-## Troubleshooting
-
-### Elasticsearch no conecta
-```bash
-# Verificar que está corriendo
-curl http://localhost:9200
-
-# Si no está corriendo, iniciarlo
-docker start elasticsearch
-```
-
-### API no inicia
-```bash
-# Verificar dependencias
-pip list | grep -E "fastapi|uvicorn|elasticsearch"
-
-# Reinstalar si es necesario
-pip install -r requirements.txt
-```
-
-### CORS error en frontend
-Asegúrate que `CORS_ORIGINS` en `main.py` incluye tu URL de Astro (ej: `http://localhost:3000`)
-
----
 
 ## Tecnologías
 

@@ -276,9 +276,10 @@ import Layout from '../layouts/Layout.astro';
       const docId = doc.doc_id || doc.id || '';
 
       // Secure API redirection to your download route
+      // First try google_drive_link from API, then fallback to download endpoint
       const downloadUrl = (forceDemoMode || !isApiOnline)
         ? (doc.download_url || '#')
-        : `${API_BASE}/download/${encodeURIComponent(docId)}`;
+        : (doc.google_drive_link || `${API_BASE}/download/${encodeURIComponent(docId)}`);
 
       const card = document.createElement('a');
       card.href = downloadUrl;
