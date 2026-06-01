@@ -116,82 +116,6 @@ import Layout from '../layouts/Layout.astro';
   // ======== CONFIG ========
   const API_BASE = 'http://localhost:8000';
 
-  // ======== MOCK DOCUMENTS (Offline Fallback) ========
-  const MOCK_DOCS = [
-    {
-      doc_id: "doc_1",
-      file_name: "Plan de Marketing Anual 2025 - Corporativo.pdf",
-      file_size_bytes: 2516582,
-      indexed_at: "2025-03-15T10:30:00Z",
-      download_url: "https://drive.google.com/open?id=mock_marketing_2025",
-      snippet: "Este documento detalla las estrategias de marketing de la empresa para el año fiscal 2025. El objetivo principal es la integración de nuestra marca con el nuevo motor de búsqueda Search V16.",
-      score: 1.450
-    },
-    {
-      doc_id: "doc_2",
-      file_name: "Reporte de Finanzas Q4 2024.xlsx",
-      file_size_bytes: 5033164,
-      indexed_at: "2024-11-20T16:45:00Z",
-      download_url: "https://drive.google.com/open?id=mock_finanzas_q4",
-      snippet: "Análisis presupuestario de fin de año 2024. Los ingresos consolidados superaron las proyecciones en un 12%. Contiene los balances completos de ingresos, egresos y proyecciones.",
-      score: 0.980
-    },
-    {
-      doc_id: "doc_3",
-      file_name: "Guía de Desarrollo e Integración API.txt",
-      file_size_bytes: 18432,
-      indexed_at: "2025-01-10T09:15:00Z",
-      download_url: "https://drive.google.com/open?id=mock_api_guide",
-      snippet: "Instrucciones de configuración del sistema de indexación. Para conectar correctamente el Drive corporativo con Search V16, asegúrese de generar la clave API en la consola de administración.",
-      score: 2.110
-    },
-    {
-      doc_id: "doc_4",
-      file_name: "Minuta de Reunión Tecnológica - Enero 2026.docx",
-      file_size_bytes: 1258291,
-      indexed_at: "2026-01-12T14:00:00Z",
-      download_url: "https://drive.google.com/open?id=mock_minuta_2026",
-      snippet: "Reunión de planificación del equipo de desarrollo de TI en 2026. Se discutió la migración de bases de datos relacionales Cassandra a Elasticsearch o SLR para indexar metadatos.",
-      score: 1.150
-    },
-    {
-      doc_id: "doc_5",
-      file_name: "Algoritmo de Indexación Semántica V16.pdf",
-      file_size_bytes: 3250585,
-      indexed_at: "2025-06-08T11:20:00Z",
-      download_url: "https://drive.google.com/open?id=mock_nlp_algorithm",
-      snippet: "Investigación académica sobre el procesamiento del lenguaje natural (NLP) y su aplicación en Search V16. Analiza el contexto semántico de cada documento en el Drive corporativo.",
-      score: 3.420
-    },
-    {
-      doc_id: "doc_6",
-      file_name: "Manual de Usuario y Despliegue.txt",
-      file_size_bytes: 46080,
-      indexed_at: "2024-08-05T08:00:00Z",
-      download_url: "https://drive.google.com/open?id=mock_user_manual",
-      snippet: "Guía de inicio rápido para el usuario final. Explica cómo realizar búsquedas textuales y cómo filtrar resultados por extensión de archivo (.pdf, .txt, .docx, .xlsx) y rango de fechas.",
-      score: 0.720
-    },
-    {
-      doc_id: "doc_7",
-      file_name: "Políticas de Ciberseguridad y Accesos.docx",
-      file_size_bytes: 1572864,
-      indexed_at: "2025-10-22T17:10:00Z",
-      download_url: "https://drive.google.com/open?id=mock_security_policies",
-      snippet: "Protocolos de seguridad para la gestión documental de la empresa. Este informe detalla las políticas de cifrado de archivos, control de accesos basados en roles (RBAC) y auditoría.",
-      score: 0.650
-    },
-    {
-      doc_id: "doc_8",
-      file_name: "Presupuesto de Infraestructura Tecnológica 2025.xlsx",
-      file_size_bytes: 1153433,
-      indexed_at: "2025-02-28T13:40:00Z",
-      download_url: "https://drive.google.com/open?id=mock_infra_budget",
-      snippet: "Detalle de los costos de hardware y servicios cloud estimulados para el año 2025. Incluye la compra de nuevos servidores para el almacenamiento de archivos indexados.",
-      score: 1.050
-    }
-  ];
-
   // ======== DOM ========
   const $ = id => document.getElementById(id);
   const elLanding     = $('landing');
@@ -297,12 +221,6 @@ import Layout from '../layouts/Layout.astro';
     showResults(query);
     showState('loading');
 
-    if (forceDemoMode) {
-      isApiOnline = false;
-      performOfflineSearch(query);
-      return;
-    }
-
     const startTime = performance.now();
 
     try {
@@ -341,32 +259,6 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  function performOfflineSearch(query) {
-    const startTime = performance.now();
-    
-    // Simple client-side text filtering to simulate backend search
-    const results = MOCK_DOCS.filter(doc => {
-      const q = query.toLowerCase();
-      return doc.file_name.toLowerCase().includes(q) || doc.snippet.toLowerCase().includes(q);
-    });
-
-    setTimeout(() => {
-      const elapsed = ((performance.now() - startTime) / 1000).toFixed(3);
-      
-      if (results.length === 0) {
-        showState('empty');
-        elSummary.textContent = `Sin resultados para "${query}"`;
-        elOfflineBadge.classList.remove('hidden');
-        return;
-      }
-
-      renderResults(results, query);
-      elSummary.textContent = `${results.length} resultado${results.length !== 1 ? 's' : ''} para "${query}"`;
-      elTime.textContent = `${elapsed}s`;
-      elOfflineBadge.classList.remove('hidden');
-      showState('results');
-    }, 150); // slight simulated delay
-  }
 
   // ======== RENDER ========
   function renderResults(results, query) {
