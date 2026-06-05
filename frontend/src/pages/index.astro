@@ -24,7 +24,7 @@ import Layout from '../layouts/Layout.astro';
             type="text"
             placeholder="Buscar en documentos..."
             autocomplete="off"
-            class="w-full pl-14 pr-28 py-4 bg-white border border-base-300 rounded-full shadow-sm focus:shadow-md focus:border-emerald-500 focus:outline-none transition-all text-base"
+            class="w-full pl-14 pr-28 py-4 bg-[var(--input-bg)] border border-[var(--input-border)] text-base-content rounded-full shadow-sm focus:shadow-md focus:border-[var(--input-focus-border)] focus:outline-none transition-all text-base"
           />
           <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold font-display rounded-full transition-colors cursor-pointer active:scale-95">
             Buscar
@@ -52,7 +52,7 @@ import Layout from '../layouts/Layout.astro';
                 type="text"
                 placeholder="Buscar..."
                 autocomplete="off"
-                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-transparent rounded-full focus:bg-white focus:border-emerald-500 focus:outline-none transition-all text-sm"
+                class="w-full pl-10 pr-4 py-2 bg-base-200 border border-transparent text-base-content rounded-full focus:bg-[var(--input-bg)] focus:border-[var(--input-focus-border)] focus:outline-none transition-all text-sm"
               />
             </div>
           </form>
@@ -182,7 +182,7 @@ import Layout from '../layouts/Layout.astro';
   function highlightQuery(text, query) {
     if (!query || !text) return escapeHtml(text || '');
     const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
-    return escapeHtml(text).replace(regex, '<mark class="bg-emerald-100 text-emerald-700 px-0.5 rounded">$1</mark>');
+    return escapeHtml(text).replace(regex, '<mark class="px-0.5 rounded">$1</mark>');
   }
 
   // ======== VIEWS ========

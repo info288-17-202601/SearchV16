@@ -13,9 +13,71 @@ import '../styles/global.css';
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+		<script is:inline>
+			// Prevención de FOUC (parpadeo blanco) al cargar el tema desde localStorage
+			(function() {
+				const savedTheme = localStorage.getItem('search-v16-theme') || 'nordic';
+				document.documentElement.setAttribute('data-theme', savedTheme);
+			})();
+		</script>
 	</head>
 	<body class="font-sans antialiased text-base-content bg-base-100">
 		<slot />
+
+		<!-- Selector de Temas Flotante -->
+		<div class="theme-switcher-container">
+			<div class="theme-switcher">
+				<button class="theme-btn" data-theme-val="nordic" title="Modo Claro">
+					<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+					</svg>
+					<span>Claro</span>
+				</button>
+				<button class="theme-btn" data-theme-val="nordic-dark" title="Modo Oscuro">
+					<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+					</svg>
+					<span>Oscuro</span>
+				</button>
+				<button class="theme-btn" data-theme-val="nordic-contrast" title="Alto Contraste">
+					<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10" />
+						<path d="M12 2a10 10 0 0 0 0 20V2z" fill="currentColor" />
+					</svg>
+					<span>Contraste</span>
+				</button>
+			</div>
+		</div>
+
+		<script is:inline>
+			// Controladores del switcher de temas en el cliente
+			(function() {
+				const buttons = document.querySelectorAll('.theme-btn');
+				const currentTheme = document.documentElement.getAttribute('data-theme') || 'nordic';
+				
+				const setActiveTheme = (theme) => {
+					document.documentElement.setAttribute('data-theme', theme);
+					localStorage.setItem('search-v16-theme', theme);
+					
+					buttons.forEach(btn => {
+						if (btn.getAttribute('data-theme-val') === theme) {
+							btn.classList.add('active');
+						} else {
+							btn.classList.remove('active');
+						}
+					});
+				};
+
+				setActiveTheme(currentTheme);
+
+				buttons.forEach(btn => {
+					btn.addEventListener('click', () => {
+						const selected = btn.getAttribute('data-theme-val');
+						setActiveTheme(selected);
+					});
+				});
+			})();
+		</script>
 	</body>
 </html>
 
