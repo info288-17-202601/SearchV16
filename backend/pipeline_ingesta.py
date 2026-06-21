@@ -15,6 +15,7 @@ Uso:
 
 Ejemplo: 
     python pipeline_ingesta.py --directorio ./Documentos --credentials credentials.json --folder-id 1fT3PKeERCtWcEYh1LO7nYcT3_USX9wsj --es-host http://192.168.1.15:9200 --es-index documentos_busqueda
+    
 
 Requisitos (instalar antes de ejecutar):
     pip install google-api-python-client google-auth \

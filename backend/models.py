@@ -6,6 +6,7 @@ class SearchRequest(BaseModel):
     """Modelo para recibir solicitudes de búsqueda"""
     query: str = Field(..., min_length=1, max_length=500, description="Término de búsqueda")
     size: Optional[int] = Field(default=10, ge=1, le=100, description="Número de resultados")
+    page: int = Field(default=1, ge=1, description="Número de página actual (1-based)")
     fields: Optional[List[str]] = Field(
         default=["title", "content"],
         description="Campos en los que buscar"

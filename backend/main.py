@@ -1,3 +1,4 @@
+from starlette import requests
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -102,6 +103,7 @@ async def search(request: SearchRequest) -> SearchResponse:
     {
         "query": "distributed systems",
         "size": 20,
+        page=1,
         "fields": ["title", "content"],
         "highlight": true
     }
@@ -119,6 +121,7 @@ async def search(request: SearchRequest) -> SearchResponse:
             query=request.query,
             fields=request.fields,
             size=request.size,
+            page=request.page,
             highlight=request.highlight
         )
         
@@ -158,6 +161,7 @@ async def search_get(
     query: str = Query(None, min_length=1, max_length=500, description="Término de búsqueda"),
     q: str = Query(None, min_length=1, max_length=500, description="Alias para query"),
     size: int = Query(10, ge=1, le=100, description="Número de resultados"),
+    page: int = Query(1, ge=1, description="Número de página"),
     highlight: bool = Query(True, description="Incluir highlights"),
 ) -> SearchResponse:
     """
@@ -184,6 +188,7 @@ async def search_get(
     request = SearchRequest(
         query=search_query,
         size=size,
+        page=page,
         highlight=highlight
     )
     return await search(request)
@@ -194,6 +199,7 @@ async def search_advanced(
     query: str = Query(..., description="Término de búsqueda"),
     author: Optional[str] = Query(None, description="Filtrar por autor"),
     size: int = Query(10, ge=1, le=100),
+    page: int = Query(1, ge=1, description="Número de página"),
     fields: Optional[List[str]] = Query(None, description="Campos a buscar")
 ) -> SearchResponse:
     """
@@ -227,6 +233,7 @@ async def search_advanced(
             filters=filters if filters else None,
             fields=fields,
             size=size,
+            page=page,
             highlight=True,
         )
         

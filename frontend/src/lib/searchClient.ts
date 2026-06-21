@@ -20,6 +20,7 @@ class SearchClient {
   async search(
     query: string,
     size: number = 10,
+    page: number = 1,
     highlight: boolean = true
   ) {
     try {
@@ -31,6 +32,7 @@ class SearchClient {
         body: JSON.stringify({
           query,
           size,
+          page,
           highlight,
           fields: ['title', 'content', 'author'],
         }),
@@ -58,12 +60,14 @@ class SearchClient {
   async searchAdvanced(
     query: string,
     author?: string,
-    size: number = 10
+    size: number = 10,
+    page: number = 1
   ) {
     try {
       const params = new URLSearchParams({
         query,
         size: size.toString(),
+        page: page.toString(),
       });
 
       if (author) {

@@ -42,6 +42,7 @@ class ElasticsearchSearch:
         query: str,
         fields: Optional[List[str]] = None,
         size: int = 10,
+        page: int = 1,
         highlight: bool = True,
     ) -> Dict[str, Any]:
         """
@@ -72,10 +73,12 @@ class ElasticsearchSearch:
         }
         
         # Parámetros de búsqueda
+        from_offset = (page - 1) * size
         search_params = {
             "index": self.index,
             "query": es_query,
             "size": size,
+            "from_": from_offset,
             "_source": True  # Retornar documento completo
         }
         
@@ -108,6 +111,7 @@ class ElasticsearchSearch:
         filters: Optional[Dict[str, Any]] = None,
         fields: Optional[List[str]] = None,
         size: int = 10,
+        page: int = 1,
         highlight: bool = True,
     ) -> Dict[str, Any]:
         """
@@ -149,11 +153,13 @@ class ElasticsearchSearch:
             es_query["bool"]["filter"] = [
                 {"term": {f"{k}.keyword": v}} for k, v in filters.items()
             ]
-        
+
+        from_offset = (page - 1) * size
         search_params = {
             "index": self.index,
             "query": es_query,
             "size": size,
+            "from_": from_offset,
             "_source": True
         }
         
