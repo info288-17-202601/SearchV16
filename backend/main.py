@@ -1,12 +1,21 @@
 from starlette import requests
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
 import logging
 from typing import Optional, List
+import os
+from dotenv import load_dotenv
 
 from models import SearchRequest, SearchResponse, SearchResult
 from search import ElasticsearchSearch
+import redis
+
+load_dotenv()
+ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL")
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = int(os.getenv("REDIS_PORT"))
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -15,6 +24,12 @@ logger = logging.getLogger(__name__)
 # Inicializar cliente de Elasticsearch globalmente
 es_client: Optional[ElasticsearchSearch] = None
 
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    db=0,
+    decode_responses=True
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,7 +40,7 @@ async def lifespan(app: FastAPI):
     global es_client
     logger.info("Iniciando aplicación...")
     es_client = ElasticsearchSearch(
-        host="http://localhost:9200",
+        host=ELASTICSEARCH_URL,
         index="library"
     )
     
@@ -47,16 +62,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:4321")
+
 # Configurar CORS para permitir solicitudes desde Astro
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",      # Astro dev server
-        "http://localhost:4321",      # Astro dev server (puerto alternativo)
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:4321",
-        "*"  # Permitir desde cualquier origen (cambiar en producción)
-    ],
+    allow_origins=[frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -116,6 +127,13 @@ async def search(request: SearchRequest) -> SearchResponse:
         )
     
     try:
+        # Buscar en cache
+        cache_key = f"search:{request.query.lower()},page:{request.page}" 
+        cached = redis_client.get(cache_key)
+
+        if cached:
+            return SearchResponse.model_validate_json(cached)
+
         # Realizar búsqueda en Elasticsearch
         response = es_client.search(
             query=request.query,
@@ -138,15 +156,24 @@ async def search(request: SearchRequest) -> SearchResponse:
                 source=hit["_source"]
             )
             results.append(result)
-        
+
         # Crear respuesta
-        return SearchResponse(
+        final_response = SearchResponse(
             total=response["hits"]["total"]["value"],
             count=len(results),
             results=results,
             query=request.query,
             took_ms=response["took"]
         )
+
+        # Guardar en Redis
+        redis_client.set(
+            cache_key,
+            final_response.model_dump_json(),
+            ex=600
+        )
+
+        return final_response
     
     except Exception as e:
         logger.error(f"Error en búsqueda: {str(e)}")
@@ -160,9 +187,9 @@ async def search(request: SearchRequest) -> SearchResponse:
 async def search_get(
     query: str = Query(None, min_length=1, max_length=500, description="Término de búsqueda"),
     q: str = Query(None, min_length=1, max_length=500, description="Alias para query"),
-    size: int = Query(10, ge=1, le=100, description="Número de resultados"),
+    size: int = Query(20, ge=1, le=100, description="Número de resultados"),
     page: int = Query(1, ge=1, description="Número de página"),
-    highlight: bool = Query(True, description="Incluir highlights"),
+    highlight: bool = Query(False, description="Incluir highlights"),
 ) -> SearchResponse:
     """
     Realiza una búsqueda en Elasticsearch (GET)
@@ -198,7 +225,7 @@ async def search_get(
 async def search_advanced(
     query: str = Query(..., description="Término de búsqueda"),
     author: Optional[str] = Query(None, description="Filtrar por autor"),
-    size: int = Query(10, ge=1, le=100),
+    size: int = Query(50, ge=1, le=100),
     page: int = Query(1, ge=1, description="Número de página"),
     fields: Optional[List[str]] = Query(None, description="Campos a buscar")
 ) -> SearchResponse:
@@ -354,3 +381,5 @@ if __name__ == "__main__":
         port=8000,
         reload=True
     )
+
+

@@ -6,7 +6,7 @@
 class SearchClient {
   private apiUrl: string;
 
-  constructor(apiUrl: string = 'http://localhost:8000') {
+  constructor(apiUrl: string = import.meta.env.PUBLIC_BACKEND_URL) {
     this.apiUrl = apiUrl;
   }
 
