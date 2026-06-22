@@ -12,7 +12,7 @@ import Layout from '../layouts/Layout.astro';
           Search <span class="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">V16</span>
         </h1>
         <p class="text-base-content/60 text-sm max-w-sm mx-auto">
-          Buscador distribuido de documentos corporativos
+          Buscado distribuido de documentos corporativos
         </p>
 
         <form id="form-landing" class="relative mt-4">
@@ -114,7 +114,7 @@ import Layout from '../layouts/Layout.astro';
 
 <script is:inline>
   // ======== CONFIG ========
-  const API_BASE = 'http://localhost:8000';
+  const API_BASE = "http://localhost:8000";
 
   // ======== DOM ========
   const $ = id => document.getElementById(id);
@@ -255,7 +255,6 @@ import Layout from '../layouts/Layout.astro';
     } catch (err) {
       console.warn('API connection failed. Prompting for offline mode...', err);
       isApiOnline = false;
-      performOfflineSearch(query);
     }
   }
 

@@ -6,7 +6,7 @@
 class SearchClient {
   private apiUrl: string;
 
-  constructor(apiUrl: string = 'http://localhost:8000') {
+  constructor(apiUrl: string = import.meta.env.PUBLIC_BACKEND_URL) {
     this.apiUrl = apiUrl;
   }
 
@@ -19,7 +19,7 @@ class SearchClient {
    */
   async search(
     query: string,
-    size: number = 10,
+    size: number = 50,
     highlight: boolean = true
   ) {
     try {
@@ -58,7 +58,7 @@ class SearchClient {
   async searchAdvanced(
     query: string,
     author?: string,
-    size: number = 10
+    size: number = 50
   ) {
     try {
       const params = new URLSearchParams({

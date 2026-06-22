@@ -1,2 +1,23 @@
 # ignoramos /backend/credentials
 /backend/credentials.json
+/backend/token.json
+/backend/Documentos/
+
+# ==========================================
+# Frontend (Astro / Node)
+# ==========================================
+# Dependencias
+frontend/node_modules/
+
+# Caché de Astro y TypeScript
+frontend/.astro/
+frontend/.cache/
+
+# Carpeta de build / distribución
+frontend/dist/
+
+# Logs de npm
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
