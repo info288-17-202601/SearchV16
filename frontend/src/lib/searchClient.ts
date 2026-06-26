@@ -28,6 +28,7 @@ class SearchClient {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           query,
           size,
@@ -77,6 +78,7 @@ class SearchClient {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         }
       );
 
@@ -96,7 +98,7 @@ class SearchClient {
    */
   async health() {
     try {
-      const response = await fetch(`${this.apiUrl}/health`);
+      const response = await fetch(`${this.apiUrl}/health`, { credentials: 'include' });
       return await response.json();
     } catch (error) {
       console.error('Error al verificar salud:', error);

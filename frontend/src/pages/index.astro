@@ -224,7 +224,9 @@ import Layout from '../layouts/Layout.astro';
     const startTime = performance.now();
 
     try {
-      const res = await fetch(`${API_BASE}/search?query=${encodeURIComponent(query)}`);
+      const res = await fetch(`${API_BASE}/search?query=${encodeURIComponent(query)}`, {
+        credentials: 'include'
+      });
 
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
