@@ -7,7 +7,7 @@ services:
     container_name: elasticsearch
     environment:
       discovery.type: single-node
-      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      ES_JAVA_OPTS: "-Xms${ES_HEAP_SIZE:-1g} -Xmx${ES_HEAP_SIZE:-1g}"
       xpack.security.enabled: "false"
     ports:
       - "9200:9200"

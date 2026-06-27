@@ -370,7 +370,7 @@ import Layout from "../layouts/Layout.astro";
     try {
       const res = await fetch(
         `${API_BASE}/search?query=${encodeURIComponent(query)}&page=${page}&size=${itemsPerPage}`,
-      , {
+      {
         credentials: 'include'
       });
 

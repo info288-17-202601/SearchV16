@@ -51,6 +51,9 @@ from elasticsearch.helpers import bulk
 import pypdf                          # PDFs
 from docx import Document as DocxDoc  # DOCX
 
+NUMERO_SHARDS = int(os.getenv("ELASTIC_PRIMARY_SHARDS", "2"))
+NUMERO_REPLICAS = int(os.getenv("ELASTIC_REPLICAS", "2"))
+
 SALIDA_JSON_DIR = Path("./documentos_indexados")
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -323,6 +326,51 @@ def construir_cliente_es(host: str) -> Elasticsearch:
     log.info("Conexión a Elasticsearch establecida en %s", host)
     return cliente
 
+def crear_indice_elasticsearch(cliente: Elasticsearch, indice: str) -> None:
+    """
+    Crea el índice de Elasticsearch si aún no existe.
+
+    Se inicializa con el número de shards y réplicas definidos en variables
+    de entorno y con mappings básicos para los campos usados por la búsqueda.
+
+    Args:
+        cliente: Cliente de Elasticsearch.
+        indice : Nombre del índice a crear.
+    """
+    try:
+        if cliente.indices.exists(index=indice):
+            log.info("Índice '%s' ya existe. Se reutilizará.", indice)
+            return
+
+
+
+        cliente.indices.create(
+            index=indice,
+            settings={
+                "number_of_shards": NUMERO_SHARDS,
+                "number_of_replicas": NUMERO_REPLICAS,
+            },
+            mappings={
+                "properties": {
+                    "title": {"type": "text"},
+                    "content": {"type": "text"},
+                    "file_hash": {"type": "keyword"},
+                    "file_extension": {"type": "keyword"},
+                    "google_drive_link": {"type": "keyword"},
+                    "upload_date": {"type": "date"},
+                }
+            },
+        )
+        log.info(
+            "Índice '%s' creado con %d shard(s) y %d réplica(s).",
+            indice,
+            numero_shards,
+            numero_replicas,
+        )
+
+    except Exception as exc:  # pylint: disable=broad-except
+        log.warning("No se pudo crear el índice '%s': %s", indice, exc)
+
 
 def indexar_elasticsearch(
     cliente: Elasticsearch,
@@ -481,6 +529,7 @@ def procesar_directorio(
     if ELASTICSEARCH_ACTIVO:
         try:
             cliente_es = construir_cliente_es(es_host)
+            crear_indice_elasticsearch(cliente_es, es_index)
         except ESConnectionError as exc:
             log.critical("Error al conectar con Elasticsearch: %s", exc)
             sys.exit(1)
