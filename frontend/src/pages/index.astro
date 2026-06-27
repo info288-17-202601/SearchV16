@@ -368,10 +368,11 @@ import Layout from "../layouts/Layout.astro";
     const startTime = performance.now();
 
     try {
-      // 📃 Inyectamos los query params 'query', 'page' y 'size' en la URL hacia FastAPI
       const res = await fetch(
         `${API_BASE}/search?query=${encodeURIComponent(query)}&page=${page}&size=${itemsPerPage}`,
-      );
+      , {
+        credentials: 'include'
+      });
 
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);

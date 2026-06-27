@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+const { title = "Search V16" } = Astro.props;
 ---
 <!doctype html>
 <html lang="es" data-theme="nordic">
@@ -8,7 +9,7 @@ import '../styles/global.css';
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Search V16</title>
+		<title>{title}</title>
 		<meta name="description" content="Motor de búsqueda distribuido de documentos corporativos." />
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,8 +20,47 @@ import '../styles/global.css';
 				const savedTheme = localStorage.getItem('search-v16-theme') || 'nordic';
 				document.documentElement.setAttribute('data-theme', savedTheme);
 			})();
+
+			// Verificación de autenticación en el cliente
+			(async function() {
+				if (window.location.pathname.startsWith('/login')) {
+					return;
+				}
+				try {
+					const res = await fetch('http://localhost:8000/api/auth/me', { credentials: 'include' });
+					if (res.status === 401) {
+						window.location.href = '/login';
+						return;
+					}
+					if (!res.ok) {
+						throw new Error('Sesión inválida');
+					}
+					const user = await res.json();
+					
+					// Insertar dinámicamente badge de usuario y botón de salir
+					document.addEventListener('DOMContentLoaded', () => {
+						const userBadge = document.createElement('div');
+						userBadge.className = 'fixed top-4 right-4 flex items-center gap-3 bg-base-200/90 backdrop-blur-md px-4 py-2 rounded-full border border-base-300 text-xs shadow-sm z-50';
+						userBadge.style.zIndex = '9999';
+						userBadge.innerHTML = `
+							<span class="font-semibold text-base-content/85">👤 ${user.fullname || user.username}</span>
+							<button id="btn-logout" class="text-red-500 hover:text-red-600 font-bold border-l border-base-300 pl-3 cursor-pointer">Salir</button>
+						`;
+						document.body.appendChild(userBadge);
+
+						document.getElementById('btn-logout').addEventListener('click', async () => {
+							await fetch('http://localhost:8000/api/auth/logout', { method: 'POST', credentials: 'include' });
+							window.location.href = '/login';
+						});
+					});
+				} catch (err) {
+					console.error('Error de autenticación:', err);
+					window.location.href = '/login';
+				}
+			})();
 		</script>
 	</head>
+
 	<body class="font-sans antialiased text-base-content bg-base-100">
 		<slot />
 

@@ -1,5 +1,5 @@
 from starlette import requests
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
@@ -8,9 +8,19 @@ from typing import Optional, List
 import os
 from dotenv import load_dotenv
 
-from models import SearchRequest, SearchResponse, SearchResult
+from models import SearchRequest, SearchResponse, SearchResult, LoginRequest, UserRegisterRequest
 from search import ElasticsearchSearch
 import redis
+from auth import (
+    init_db,
+    get_current_user,
+    verify_password,
+    create_access_token,
+    register_user,
+    COOKIE_NAME,
+    get_user_by_username,
+    ACCESS_TOKEN_EXPIRE_MINUTES
+)
 
 load_dotenv()
 ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL")
@@ -39,6 +49,13 @@ async def lifespan(app: FastAPI):
     """
     global es_client
     logger.info("Iniciando aplicación...")
+    
+    # Inicializar la base de datos de usuarios SQLite
+    try:
+        init_db()
+    except Exception as e:
+        logger.error(f"Error al inicializar base de datos SQLite: {e}")
+        
     es_client = ElasticsearchSearch(
         host=ELASTICSEARCH_URL,
         index="library"
@@ -57,7 +74,7 @@ async def lifespan(app: FastAPI):
 # Crear aplicación FastAPI
 app = FastAPI(
     title="SearchV16 API",
-    description="API de búsqueda distribuida con Elasticsearch",
+    description="API de búsqueda distribuida con Elasticsearch con Autenticación",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -98,8 +115,80 @@ async def health():
     }
 
 
+# =============================================================================
+# ENDPOINTS DE AUTENTICACIÓN
+# =============================================================================
+
+@app.post("/api/auth/register", tags=["Auth"])
+async def register(request: UserRegisterRequest):
+    """Registra un nuevo usuario en el sistema"""
+    success = register_user(
+        username=request.username,
+        password_clear=request.password,
+        fullname=request.fullname
+    )
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El nombre de usuario ya está registrado o es inválido."
+        )
+    return {"message": "Usuario registrado exitosamente."}
+
+
+@app.post("/api/auth/login", tags=["Auth"])
+async def login(request: LoginRequest, response: Response):
+    """
+    Inicia sesión, genera un token JWT y lo guarda en una Cookie HttpOnly
+    """
+    user = get_user_by_username(request.username)
+    if not user or not verify_password(request.password, user["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nombre de usuario o contraseña incorrectos."
+        )
+        
+    token = create_access_token({"sub": user["username"]})
+    
+    # Configurar cookie HttpOnly
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        httponly=True,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        samesite="lax",
+        secure=False,  # En producción con HTTPS debe ser True
+        path="/"
+    )
+    
+    return {
+        "message": "Sesión iniciada correctamente",
+        "username": user["username"],
+        "fullname": user["fullname"],
+        "role": user["role"],
+        "token": token
+    }
+
+
+@app.post("/api/auth/logout", tags=["Auth"])
+async def logout(response: Response):
+    """Cierra la sesión limpiando la cookie del token"""
+    response.delete_cookie(key=COOKIE_NAME, path="/")
+    return {"message": "Sesión cerrada correctamente"}
+
+
+@app.get("/api/auth/me", tags=["Auth"])
+async def me(current_user: dict = Depends(get_current_user)):
+    """Obtiene el perfil del usuario autenticado actual"""
+    return current_user
+
+
+
 @app.post("/search", response_model=SearchResponse, tags=["Search"])
-async def search(request: SearchRequest) -> SearchResponse:
+async def search(
+    request: SearchRequest,
+    current_user: dict = Depends(get_current_user)
+) -> SearchResponse:
     """
     Realiza una búsqueda en Elasticsearch
     
@@ -190,6 +279,7 @@ async def search_get(
     size: int = Query(20, ge=1, le=100, description="Número de resultados"),
     page: int = Query(1, ge=1, description="Número de página"),
     highlight: bool = Query(False, description="Incluir highlights"),
+    current_user: dict = Depends(get_current_user)
 ) -> SearchResponse:
     """
     Realiza una búsqueda en Elasticsearch (GET)
@@ -227,7 +317,8 @@ async def search_advanced(
     author: Optional[str] = Query(None, description="Filtrar por autor"),
     size: int = Query(50, ge=1, le=100),
     page: int = Query(1, ge=1, description="Número de página"),
-    fields: Optional[List[str]] = Query(None, description="Campos a buscar")
+    fields: Optional[List[str]] = Query(None, description="Campos a buscar"),
+    current_user: dict = Depends(get_current_user)
 ) -> SearchResponse:
     """
     Búsqueda avanzada con filtros adicionales
@@ -294,7 +385,10 @@ async def search_advanced(
 
 
 @app.get("/document/{document_id}", tags=["Documents"])
-async def get_document(document_id: str) -> dict:
+async def get_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user)
+) -> dict:
     """
     Obtiene los detalles de un documento específico, incluyendo el enlace de descarga
     
@@ -333,7 +427,10 @@ async def get_document(document_id: str) -> dict:
 
 
 @app.get("/download/{document_id}", tags=["Documents"])
-async def download_document(document_id: str):
+async def download_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user)
+):
     """
     Obtiene el enlace de descarga de un documento desde Google Drive
     

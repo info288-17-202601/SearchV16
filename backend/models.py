@@ -35,3 +35,17 @@ class SearchResponse(BaseModel):
     results: List[SearchResult]
     query: str
     took_ms: int = Field(..., description="Tiempo de ejecución en milisegundos")
+
+
+class LoginRequest(BaseModel):
+    """Modelo para recibir solicitudes de inicio de sesión"""
+    username: str = Field(..., min_length=1, max_length=50, description="Nombre de usuario")
+    password: str = Field(..., min_length=1, description="Contraseña")
+
+
+class UserRegisterRequest(BaseModel):
+    """Modelo para registrar un nuevo usuario"""
+    username: str = Field(..., min_length=3, max_length=50, description="Nombre de usuario")
+    password: str = Field(..., min_length=6, description="Contraseña (mínimo 6 caracteres)")
+    fullname: Optional[str] = Field(None, description="Nombre completo")
+
