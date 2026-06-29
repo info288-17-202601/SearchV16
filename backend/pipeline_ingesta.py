@@ -22,8 +22,6 @@ Requisitos (instalar antes de ejecutar):
                 elasticsearch pypdf python-docx
 """
 
-ELASTICSEARCH_ACTIVO = True
-
 import argparse
 import hashlib
 import logging
@@ -50,6 +48,8 @@ from elasticsearch.helpers import bulk
 # ── Extracción de texto ───────────────────────────────────────────────────────
 import pypdf                          # PDFs
 from docx import Document as DocxDoc  # DOCX
+
+ELASTICSEARCH_ACTIVO = True
 
 NUMERO_SHARDS = int(os.getenv("ELASTIC_PRIMARY_SHARDS", "2"))
 NUMERO_REPLICAS = int(os.getenv("ELASTIC_REPLICAS", "2"))
@@ -111,37 +111,29 @@ def calcular_hash(ruta_archivo: Path) -> str:
 # MÓDULO DE EXTRACCIÓN DE TEXTO
 # =============================================================================
 
-def extraer_texto(ruta_archivo: Path) -> Optional[str]:
+def extraer_texto(ruta_archivo: Path) -> tuple[Optional[str], Optional[str], Optional[str]]:
     """
-    Extrae el contenido textual de un archivo según su extensión.
-
-    Estrategias por tipo:
-      - .txt / .md : lectura nativa UTF-8 (fallback latin-1).
-      - .pdf        : pypdf — itera páginas y concatena.
-      - .docx       : python-docx — itera párrafos y concatena.
-
-    Args:
-        ruta_archivo: Ruta al archivo del que se extrae texto.
-
+    Extrae el contenido textual y metadatos (si aplica) de un archivo.
     Returns:
-        Texto extraído como string, o None si hubo un error irrecuperable.
+        Tupla con (texto_extraido, author, publication_date)
     """
     ext = ruta_archivo.suffix.lower()
 
     try:
         if ext in (".txt", ".md"):
-            return _extraer_texto_plano(ruta_archivo)
+            return _extraer_texto_plano(ruta_archivo), None, None
         elif ext == ".pdf":
+            # Esta ya devuelve la tupla de 3 elementos
             return _extraer_texto_pdf(ruta_archivo)
         elif ext == ".docx":
-            return _extraer_texto_docx(ruta_archivo)
+            return _extraer_texto_docx(ruta_archivo), None, None
         else:
             log.warning("Extensión no soportada para extracción: %s", ext)
-            return None
+            return None, None, None
 
     except Exception as exc:  # pylint: disable=broad-except
         log.error("Error al extraer texto de '%s': %s", ruta_archivo.name, exc)
-        return None
+        return None, None, None
 
 
 def _extraer_texto_plano(ruta: Path) -> str:
@@ -153,20 +145,53 @@ def _extraer_texto_plano(ruta: Path) -> str:
         return ruta.read_text(encoding="latin-1")
 
 
-def _extraer_texto_pdf(ruta: Path) -> str:
-    """Extrae texto de cada página de un PDF usando pypdf."""
+def _extraer_texto_pdf(ruta: Path) -> tuple[str, Optional[str], Optional[str]]:
+    """Extrae texto, author y publication_date de un PDF usando pypdf."""
     partes: list[str] = []
+    author = None
+    publication_date = None
+    
     with open(ruta, "rb") as fh:
         lector = pypdf.PdfReader(fh)
         if lector.is_encrypted:
             raise ValueError("El PDF está encriptado y no se puede leer.")
+        
+        # ── Extraer Metadatos de Forma Segura ──
+        if lector.metadata:
+            meta = lector.metadata
+            
+            # Procesar Autor
+            author_raw = meta.get('/Author')
+            if author_raw:
+                # Si es un IndirectObject (puntero), llamamos a getObject(), si no, lo usamos directo
+                if hasattr(author_raw, 'getObject'):
+                    author = str(author_raw.getObject()).strip()
+                else:
+                    author = str(author_raw).strip()
+            
+            # Procesar Fecha de Creación
+            publication_date_raw = meta.get('/CreationDate') or meta.get('/ModDate')
+            if publication_date_raw:
+                if hasattr(publication_date_raw, 'getObject'):
+                    publication_date = str(publication_date_raw.getObject()).strip()
+                else:
+                    publication_date = str(publication_date_raw).strip()
+
+        # Si aún resolviendo el diccionario da vacío, buscamos en XMP por seguridad
+        if not author and lector.xmp_metadata:
+            xmp = lector.xmp_metadata
+            if xmp.dc_creator and len(xmp.dc_creator) > 0:
+                author = str(xmp.dc_creator[0]).strip()
+
+        # ── Extraer Texto ──
         for num_pag, pagina in enumerate(lector.pages, start=1):
             texto_pag = pagina.extract_text() or ""
             if texto_pag.strip():
                 partes.append(texto_pag)
             else:
                 log.debug("Página %d sin texto extraíble en '%s'.", num_pag, ruta.name)
-    return "\n".join(partes)
+                
+    return "\n".join(partes), author if author else None, publication_date if publication_date else None
 
 
 def _extraer_texto_docx(ruta: Path) -> str:
@@ -354,18 +379,20 @@ def crear_indice_elasticsearch(cliente: Elasticsearch, indice: str) -> None:
                 "properties": {
                     "title": {"type": "text"},
                     "content": {"type": "text"},
-                    "file_hash": {"type": "keyword"},
-                    "file_extension": {"type": "keyword"},
-                    "google_drive_link": {"type": "keyword"},
-                    "upload_date": {"type": "date"},
+                    "author": {"type": "keyword"},
+                    "publication_date": {"type": "keyword"},
+                    "file_hash": {"type": "keyword", "index": True},
+                    "file_extension": {"type": "keyword", "index": False},
+                    "google_drive_link": {"type": "keyword", "index": False},
+                    "upload_date": {"type": "date", "index": False},
                 }
             },
         )
         log.info(
             "Índice '%s' creado con %d shard(s) y %d réplica(s).",
             indice,
-            numero_shards,
-            numero_replicas,
+            NUMERO_SHARDS,
+            NUMERO_REPLICAS,
         )
 
     except Exception as exc:  # pylint: disable=broad-except
@@ -588,11 +615,11 @@ def procesar_directorio(
             errores += 1
             continue  # No indexar si no hay enlace → evitar inconsistencia
 
-        # 5. Extraer texto
-        texto = extraer_texto(archivo)
+        # 5. Extraer texto y metadatos
+        texto, author_doc, publication_date_doc = extraer_texto(archivo)
+        
         texto = limpiar_texto(texto) if texto else None
         if texto is None:
-            # Registrar con texto vacío antes de desistir para no perder el enlace
             texto = ""
             log.warning(
                 "   Extracción de texto fallida para '%s'. Se indexará con texto vacío.",
@@ -601,12 +628,14 @@ def procesar_directorio(
 
         # 6. Construir documento JSON
         documentos_pendientes.append({
-            "title"        : archivo.name,
+            "title"            : archivo.name,
             "file_extension"   : ext,
             "file_hash"        : file_hash,
             "google_drive_link": enlace_drive,
-            "content"   : texto,
+            "content"          : texto,
             "upload_date"      : datetime.now(tz=timezone.utc).isoformat(),
+            "author"            : author_doc,
+            "publication_date": publication_date_doc,
         })
 
         # Marcar hash como procesado inmediatamente para deduplicar
