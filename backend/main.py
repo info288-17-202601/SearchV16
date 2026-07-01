@@ -182,7 +182,9 @@ async def me(current_user: dict = Depends(get_current_user)):
     """Obtiene el perfil del usuario autenticado actual"""
     return current_user
 
-
+def get_cache_ttl(page: int) -> int:
+    ttl = int(1800 / page)
+    return max(ttl, 300)
 
 @app.post("/search", response_model=SearchResponse, tags=["Search"])
 async def search(
@@ -259,7 +261,7 @@ async def search(
         redis_client.set(
             cache_key,
             final_response.model_dump_json(),
-            ex=600
+            ex=get_cache_ttl(request.page)
         )
 
         return final_response

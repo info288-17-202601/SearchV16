@@ -12052,3 +12052,191 @@
 2026-06-21 14:43:33  INFO      ── Procesando: archive_00138_csfcp_000181.pdf
 2026-06-21 14:43:35  INFO      Archivo subido a Drive: 'archive_00138_csfcp_000181.pdf'  →  https://drive.google.com/file/d/17pWzOxSzVmJYuToqXdIQmeWkDAI2zffO/view?usp=drivesdk
 2026-06-21 14:43:35  INFO      ── Procesando: archive_00139_doylestown_blessing1962.pdf
+2026-06-27 14:58:38  INFO      Please visit this URL to authorize this application: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=919132708587-p27hij285eaemjtamnc4p7uvrsooihro.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A58775%2F&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive&state=U3xir1jKJ4vekN0r1badgf1kPBh20e&code_challenge=O1Elz_jjUDtlpDkIFk4sLV57w3Xy8hzYfLK_GO7GEbo&code_challenge_method=S256&access_type=offline
+2026-06-27 14:58:50  INFO      "GET /?state=U3xir1jKJ4vekN0r1badgf1kPBh20e&iss=https://accounts.google.com&code=4/0AdkVLPyIWws9c1BiHlZA0niDYT5YN084HkbJln3NaXkY86K8CSgcY4iNpJ49XC7eb3FDkQ&scope=https://www.googleapis.com/auth/drive HTTP/1.1" 200 65
+2026-06-27 14:58:50  INFO      Autenticación OAuth completada exitosamente.
+2026-06-27 14:58:50  INFO      Token guardado en 'token.json'.
+2026-06-27 14:58:50  INFO      Servicio de Google Drive inicializado correctamente.
+2026-06-27 14:58:50  INFO      HEAD http://localhost:9200/ [status:200 duration:0.134s]
+2026-06-27 14:58:50  INFO      Conexión a Elasticsearch establecida en http://localhost:9200
+2026-06-27 14:58:50  INFO      HEAD http://localhost:9200/library [status:200 duration:0.051s]
+2026-06-27 14:58:51  INFO      POST http://localhost:9200/library/_search?scroll=2m [status:200 duration:0.470s]
+2026-06-27 14:58:51  INFO      POST http://localhost:9200/_search/scroll [status:200 duration:0.039s]
+2026-06-27 14:58:51  INFO      DELETE http://localhost:9200/_search/scroll [status:200 duration:0.015s]
+2026-06-27 14:58:51  INFO      Cargados 65 hashes previos desde el índice 'library'.
+2026-06-27 14:58:51  INFO      ============================================================
+2026-06-27 14:58:51  INFO      Iniciando pipeline en: C:\Users\andym\CLASES\SEMESTRE 9\SISTEMAS DISTRIBUIDOS\SearchV16\backend\Documentos
+2026-06-27 14:58:51  INFO      ============================================================
+2026-06-27 14:58:51  INFO      ── Procesando: biblia.txt
+2026-06-27 14:58:51  INFO         DUPLICADO — omitido: biblia.txt  (hash: bda5fa784594…)
+2026-06-27 14:58:51  INFO      ── Procesando: Desarrollo de un Sistema de Comunicación inalámbrica con Arduino.docx
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: Desarrollo de un Sistema de Comunicación inalámbrica con Arduino.docx  (hash: 7fd57b995990…)
+2026-06-27 14:58:52  INFO      ── Procesando: ejemplo.md
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: ejemplo.md  (hash: 1c83b89722ac…)
+2026-06-27 14:58:52  INFO      ── Procesando: El libro troll (El Rubius) .pdf
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: El libro troll (El Rubius) .pdf  (hash: 0d2c3a3f505b…)
+2026-06-27 14:58:52  INFO      ── Procesando: Informe_Laboratorio_HPC_N_Cuerpos.docx
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: Informe_Laboratorio_HPC_N_Cuerpos.docx  (hash: a2ae42a9437e…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00000.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00000.txt  (hash: d5f2401e5b30…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00001.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00001.txt  (hash: 3da1f450dd61…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00002.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00002.txt  (hash: 70952334103c…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00003.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00003.txt  (hash: 3a642ff32a93…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00004.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00004.txt  (hash: 9c53d4b339d7…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00005.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00005.txt  (hash: b20f39da9981…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00006.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00006.txt  (hash: 190dfff897e3…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00007.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00007.txt  (hash: 538b1de9d62a…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00008.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00008.txt  (hash: 22e26b7e05c4…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00009.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00009.txt  (hash: 7dcb7c0f1253…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00010.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00010.txt  (hash: 4bd6e2a26a14…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00011.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00011.txt  (hash: 86a14b86fd28…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00012.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00012.txt  (hash: c85b32f5e29f…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00013.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00013.txt  (hash: 063dea85f66b…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00014.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00014.txt  (hash: 4f86d191baea…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00015.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00015.txt  (hash: 7112e3a039cf…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00016.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00016.txt  (hash: 44a63e49d86f…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00017.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00017.txt  (hash: 8841dff315fd…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00018.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00018.txt  (hash: fece507b3e1f…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00019.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00019.txt  (hash: 1779c4053569…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00020.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00020.txt  (hash: b1b61c59a6e8…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00021.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00021.txt  (hash: 0f82cbc6a45b…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00022.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00022.txt  (hash: 9bb28b2373a5…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00023.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00023.txt  (hash: 44a7ac8af3f2…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00024.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00024.txt  (hash: 8fca00b44939…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00025.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00025.txt  (hash: 306d4fd2db18…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00026.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00026.txt  (hash: d35f4f6aff79…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00027.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00027.txt  (hash: b14c40a6a840…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00028.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00028.txt  (hash: 8cd9008b322f…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00029.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00029.txt  (hash: 0b83e24839fa…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00030.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00030.txt  (hash: 72240536ee93…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00031.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00031.txt  (hash: f3496bd9420d…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00032.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00032.txt  (hash: 5d54f40b8501…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00033.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00033.txt  (hash: 108ac500af58…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00034.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00034.txt  (hash: e4938d266800…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00035.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00035.txt  (hash: 9cfc2538018f…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00036.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00036.txt  (hash: c58f35822212…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00037.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00037.txt  (hash: bfba39c4e803…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00038.txt
+2026-06-27 14:58:52  INFO         DUPLICADO — omitido: news_00038.txt  (hash: e2269f122049…)
+2026-06-27 14:58:52  INFO      ── Procesando: news_00039.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00039.txt  (hash: b4926445df4f…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00040.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00040.txt  (hash: 38ed03a0b237…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00041.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00041.txt  (hash: 8784c6af09db…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00042.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00042.txt  (hash: 1dd47b322941…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00043.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00043.txt  (hash: d409fc60d206…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00044.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00044.txt  (hash: 0904ec7b0915…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00045.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00045.txt  (hash: c8e0cb88f69f…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00046.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00046.txt  (hash: 9b7770d8c625…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00047.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00047.txt  (hash: f06981628948…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00048.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00048.txt  (hash: b42eec0eb24e…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00049.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00049.txt  (hash: 735496ab0840…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00050.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00050.txt  (hash: 9db93ca6be6c…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00051.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00051.txt  (hash: 4d063d459b46…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00052.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00052.txt  (hash: 9c50fbb73244…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00054.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00054.txt  (hash: d3f66c05c147…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00055.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00055.txt  (hash: 12ad6b235b44…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00056.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00056.txt  (hash: 1b6e470c64b5…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00057.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00057.txt  (hash: 58d0a0426ea9…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00058.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00058.txt  (hash: 2fc4186206a5…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00059.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00059.txt  (hash: 7b7950fd924e…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00060.txt
+2026-06-27 14:58:53  INFO         DUPLICADO — omitido: news_00060.txt  (hash: 85e122dc0eeb…)
+2026-06-27 14:58:53  INFO      ── Procesando: news_00061.txt
+2026-06-27 14:58:55  INFO      Archivo subido a Drive: 'news_00061.txt'  →  https://drive.google.com/file/d/1VrurIyT-yz9DmIOPkEAAIiiW1TwSK-nE/view?usp=drivesdk
+2026-06-27 14:58:55  INFO      ── Procesando: news_00062.txt
+2026-06-27 14:58:58  INFO      Archivo subido a Drive: 'news_00062.txt'  →  https://drive.google.com/file/d/1yNWZatj8mzg-cOIWwruLSDs36slekERo/view?usp=drivesdk
+2026-06-27 14:58:58  INFO      ── Procesando: news_00063.txt
+2026-06-27 14:59:00  INFO      Archivo subido a Drive: 'news_00063.txt'  →  https://drive.google.com/file/d/1tlGp7qsfyY_EUAkQ_3YE1CjVaTvr3dV8/view?usp=drivesdk
+2026-06-27 14:59:00  INFO      ── Procesando: news_00064.txt
+2026-06-27 14:59:02  INFO      Archivo subido a Drive: 'news_00064.txt'  →  https://drive.google.com/file/d/17xAPIMexJFXGbtP1lCifeS151FjJjlJy/view?usp=drivesdk
+2026-06-27 14:59:02  INFO      ── Procesando: news_00065.txt
+2026-06-27 14:59:05  INFO      Archivo subido a Drive: 'news_00065.txt'  →  https://drive.google.com/file/d/1gDXqNuKGrJ25AplDMxeoMIOGx33SuYsn/view?usp=drivesdk
+2026-06-27 14:59:05  INFO      ── Procesando: news_00066.txt
+2026-06-27 14:59:07  INFO      Archivo subido a Drive: 'news_00066.txt'  →  https://drive.google.com/file/d/1jogFbEFyzv9F6OLEfGLZXXPw413jx3eZ/view?usp=drivesdk
+2026-06-27 14:59:07  INFO      ── Procesando: news_00067.txt
+2026-06-27 14:59:09  INFO      Archivo subido a Drive: 'news_00067.txt'  →  https://drive.google.com/file/d/11Pw6rPK7N1F85QSvN4WqWBf2ISqwaAZa/view?usp=drivesdk
+2026-06-27 14:59:09  INFO      ── Procesando: news_00068.txt
+2026-06-27 14:59:12  INFO      Archivo subido a Drive: 'news_00068.txt'  →  https://drive.google.com/file/d/17f5TyVLwA980SG6q1S8gZqhqL3gUAoGP/view?usp=drivesdk
+2026-06-27 14:59:12  INFO      ── Procesando: news_00069.txt
+2026-06-27 14:59:14  INFO      Archivo subido a Drive: 'news_00069.txt'  →  https://drive.google.com/file/d/12QhgzsCnlUA84_41RO-8FFm-2Ishvh_H/view?usp=drivesdk
+2026-06-27 14:59:14  INFO      ── Procesando: news_00070.txt
+2026-06-27 14:59:16  INFO      Archivo subido a Drive: 'news_00070.txt'  →  https://drive.google.com/file/d/1oOBb5ognYMpG-IUEXPMhwJamg8pOtnU5/view?usp=drivesdk
+2026-06-27 14:59:16  INFO      ── Procesando: news_00071.txt
+2026-06-27 14:59:18  INFO      Archivo subido a Drive: 'news_00071.txt'  →  https://drive.google.com/file/d/1r2TRR6mJz4DKy-GQBaKWm6TawloIyrCD/view?usp=drivesdk
+2026-06-27 14:59:18  INFO      ── Procesando: news_00072.txt
+2026-06-27 14:59:20  INFO      Archivo subido a Drive: 'news_00072.txt'  →  https://drive.google.com/file/d/1or0chwvMfRPRjRKOqpfrbvTDps_S4HM-/view?usp=drivesdk
+2026-06-27 14:59:20  INFO      ── Procesando: news_00073.txt
+2026-06-27 14:59:22  INFO      Archivo subido a Drive: 'news_00073.txt'  →  https://drive.google.com/file/d/1OR1Yl7kPCNAkr7YEN_NJLJ1s_pwf2TMA/view?usp=drivesdk
+2026-06-27 14:59:22  INFO      ── Procesando: news_00074.txt
+2026-06-27 14:59:25  INFO      Archivo subido a Drive: 'news_00074.txt'  →  https://drive.google.com/file/d/12-WAczgDC9rgoRV7YFxB8VYIPsRkrK05/view?usp=drivesdk
+2026-06-27 14:59:25  INFO      ── Procesando: news_00075.txt
+2026-06-27 14:59:27  INFO      Archivo subido a Drive: 'news_00075.txt'  →  https://drive.google.com/file/d/1pfslNsCQ27PNTaMHjQJeY7FH_Fn64kAB/view?usp=drivesdk
+2026-06-27 14:59:27  INFO      ── Procesando: news_00076.txt
+2026-06-27 14:59:29  INFO      Archivo subido a Drive: 'news_00076.txt'  →  https://drive.google.com/file/d/14-OMFvg_VEfosWM8m1NCcEGhlUDHWJzJ/view?usp=drivesdk
+2026-06-27 14:59:29  INFO      ============================================================
+2026-06-27 14:59:29  INFO         Lote 1/1 — 16 documentos...
+2026-06-27 14:59:29  INFO      PUT http://localhost:9200/_bulk [status:200 duration:0.435s]
+2026-06-27 14:59:29  INFO         ✓ Lote 1/1 — 16 indexados, 0 fallos.
+2026-06-27 14:59:29  INFO      ============================================================
+2026-06-27 14:59:29  INFO      Pipeline finalizado.
+2026-06-27 14:59:29  INFO        Total archivos encontrados : 81
+2026-06-27 14:59:29  INFO        Procesados exitosamente    : 16
+2026-06-27 14:59:29  INFO        Omitidos por duplicado     : 65
+2026-06-27 14:59:29  INFO        Errores                    : 0
+2026-06-27 14:59:29  INFO      ============================================================
